@@ -1,0 +1,131 @@
+{
+ "metadata": {
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.7-final"
+  },
+  "orig_nbformat": 2,
+  "kernelspec": {
+   "name": "python3",
+   "display_name": "Python 3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2,
+ "cells": [
+  {
+   "source": [
+    "# import modules \n",
+    "Necesssry packages:\n",
+    "- pycurl\n",
+    "- io / StringIO\n",
+    "- urllib (python3) / urllib2 (python2)\n",
+    "- json\n",
+    "- time(for controling the time delay)"
+   ],
+   "cell_type": "markdown",
+   "metadata": {}
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import pycurl\n",
+    "try:\n",
+    "\tfrom io import BytesIO\n",
+    "except ImportError:\n",
+    "\tfrom StringIO import StringIO as BytesIO\n",
+    "try:\n",
+    "\tfrom urllib.parse import urlencode\n",
+    "except ImportError:\n",
+    "\tfrom urllib import urlencode\n",
+    "\n",
+    "import urllib.request #for python3\n",
+    "# import urllib2 # for python2\n",
+    "import json\n",
+    "import time"
+   ]
+  },
+  {
+   "source": [
+    "Setup the Base URL of velodyne, we have the velodyne ip address on PC network by default is:\n",
+    "\n",
+    "`192.168.1.201`\n",
+    "if you want to setup the ip address of velodyne you many use the information on \n",
+    "\n",
+    "https://greenvalleyintl.com/wp-content/uploads/2019/02/Velodyne-LiDAR-VLP-16-User-Manual.pdf\n",
+    "\n",
+    "the ip address `192.168.1.100` we have on OS named 'Velodnye' or sth. is the ip of PC on Velodyne's network."
+   ],
+   "cell_type": "markdown",
+   "metadata": {}
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "Base_URL='http://192.168.1.201/cgi'\n",
+    "\n"
+   ]
+  },
+  {
+   "source": [
+    "To get the status of Laser and rpm number"
+   ],
+   "cell_type": "markdown",
+   "metadata": {}
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "response = urllib.request.urlopen(Base_URL+'status.json')\n",
+    "while True:\n",
+    "    time.sleep(2)\n",
+    "    if response:\n",
+    "\t    status = json.loads(response.read())\n",
+    "\t    print (\"Sensor laser is \" + str(status['laser']['state']) + \", motor rpm is \" + str(status['motor']['rpm']))"
+   ]
+  },
+  {
+   "source": [
+    "if you want to change configure values:"
+   ],
+   "cell_type": "markdown",
+   "metadata": {}
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "sensor = pycurl.Curl()\n",
+    "buffer = BytesIO()\n",
+    "rc = sensor_do(sensor, Base_URL+'reset', urlencode({'data':'reset_system'}), buffer)\n",
+    "if rc:\n",
+    "\ttime.sleep(10)\n",
+    "\trc = sensor_do(sensor, Base_URL+'setting', urlencode({'rpm':'300'}), buffer)\n",
+    "if rc:\n",
+    "\ttime.sleep(1)\n",
+    "\trc = sensor_do(sensor, Base_URL+'setting', urlencode({'laser':'on'}), buffer)\n",
+    "if rc:\n",
+    "\ttime.sleep(10)"
+   ]
+  }
+ ]
+}
